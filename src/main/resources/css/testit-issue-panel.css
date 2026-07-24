@@ -1,0 +1,91 @@
+.testit-issue-panel .testit-testcase-wrap {
+    margin-bottom: 12px;
+}
+
+.testit-issue-panel .testit-testcase-wrap.testit-testcase-collapsed .testit-testcase-body {
+    display: none;
+}
+
+.testit-issue-panel .testit-testcase-header {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+}
+
+.testit-issue-panel .testit-testcase-title {
+    flex: 1 1 auto;
+    min-width: 0;
+}
+
+.testit-issue-panel .testit-testcase-unlink-btn {
+    flex-shrink: 0;
+    /* Убираем margin-left: auto, так как кнопка теперь слева */
+    margin-left: 0;
+    margin-right: 4px;
+    padding: 2px 4px;
+    border: 0;
+    background: transparent;
+    cursor: pointer;
+    line-height: 1;
+    color: #6b778c;
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity 0.12s ease;
+}
+
+.testit-issue-panel .testit-testcase-wrap:hover .testit-testcase-unlink-btn {
+    opacity: 1;
+    visibility: visible;
+}
+
+.testit-issue-panel .testit-testcase-unlink-btn:hover {
+    color: #de350b;
+}
+
+.testit-issue-panel .testit-testcase-toggle {
+    cursor: pointer;
+    flex-shrink: 0;
+    line-height: 1;
+}
+
+.testit-issue-panel .testit-testcase-wrap:not(.testit-testcase-collapsed) .testit-testcase-chevron {
+    transform: rotate(90deg);
+}
+
+.testit-issue-panel .testit-table-scroll {
+    overflow-x: auto;
+    max-width: 100%;
+}
+
+.testit-issue-panel table.testit-results-table {
+    table-layout: fixed;
+    width: 100%;
+    min-width: 28rem;
+}
+
+.testit-issue-panel table.testit-results-table th,
+.testit-issue-panel table.testit-results-table td {
+    overflow: hidden;
+    vertical-align: top;
+    white-space: normal;
+    overflow-wrap: break-word;
+}
+
+.testit-issue-panel table.testit-results-table .testit-col-date,
+.testit-issue-panel table.testit-results-table .testit-col-date-cell {
+    width: 28%;
+}
+
+.testit-issue-panel table.testit-results-table .testit-col-plan,
+.testit-issue-panel table.testit-results-table .testit-col-plan-cell {
+    width: 44%;
+}
+
+.testit-issue-panel table.testit-results-table .testit-col-plan-cell a {
+    overflow-wrap: break-word;
+}
+
+.testit-issue-panel table.testit-results-table .testit-col-status,
+.testit-issue-panel table.testit-results-table .testit-col-status-cell {
+    width: 28%;
+}

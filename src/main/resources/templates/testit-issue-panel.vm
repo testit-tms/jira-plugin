@@ -1,0 +1,26 @@
+#disable_html_escaping()
+<div id="testit-issue-panel" class="testit-issue-panel" data-issue-key="$!issueKey">
+    <div id="testit-issue-panel-loading" class="description">Loading Test IT data...</div>
+    <div id="testit-issue-panel-content" style="display:none;"></div>
+    <div id="testit-issue-panel-error" class="aui-message aui-message-error" style="display:none;"></div>
+</div>
+<script type="text/javascript">
+(function () {
+    var issueKey = "$!issueKey";
+    var attempts = 0;
+    function start() {
+        if (window.TestITIssuePanel && typeof window.TestITIssuePanel.boot === "function") {
+            window.TestITIssuePanel.boot(issueKey);
+            return;
+        }
+        if (attempts++ < 30) {
+            setTimeout(start, 100);
+        }
+    }
+    if (typeof WRM !== "undefined" && WRM.require) {
+        WRM.require("wrc!testit.testit:testit-issue-panel-resources", start);
+    } else {
+        start();
+    }
+})();
+</script>

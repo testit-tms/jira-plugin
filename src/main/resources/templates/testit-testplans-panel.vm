@@ -1,0 +1,38 @@
+#disable_html_escaping()
+<div id="testit-testplans-panel" class="testit-testplans-panel" data-issue-key="$!issueKey">
+    <div class="testit-testplans-toolbar">
+        <div class="testit-testplans-add">
+            <label class="testit-testplans-add-label" for="testit-testplan-url">Добавить тест-план</label>
+            <input id="testit-testplan-url" class="text testit-testplan-url-input" type="text"
+                   placeholder="https://.../projects/.../test-plans/.../tests" />
+            <button type="button" class="aui-button testit-testplan-add-btn">Добавить</button>
+        </div>
+        <button type="button" class="aui-button aui-button-link testit-testplans-refresh-btn" title="Обновить тест-планы">
+            <span class="aui-icon aui-icon-small aui-iconfont-refresh"></span>
+            Обновить тест-планы
+        </button>
+    </div>
+    <div id="testit-testplans-loading" class="description">Loading test plans...</div>
+    <div id="testit-testplans-content" style="display:none;"></div>
+    <div id="testit-testplans-error" class="aui-message aui-message-error" style="display:none;"></div>
+</div>
+<script type="text/javascript">
+(function () {
+    var issueKey = "$!issueKey";
+    var attempts = 0;
+    function start() {
+        if (window.TestITTestPlansPanel && typeof window.TestITTestPlansPanel.boot === "function") {
+            window.TestITTestPlansPanel.boot(issueKey);
+            return;
+        }
+        if (attempts++ < 30) {
+            setTimeout(start, 100);
+        }
+    }
+    if (typeof WRM !== "undefined" && WRM.require) {
+        WRM.require("wrc!testit.testit:testit-testplans-panel-resources", start);
+    } else {
+        start();
+    }
+})();
+</script>

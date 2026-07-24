@@ -1,0 +1,6 @@
+#disable_html_escaping()
+<script type="text/javascript">
+AJS.$("strong[title|='testResultId']").parent().empty().ready(function () {
+    AJS.$("strong[title|='testResultId']").parent().hide();
+});
+</script>

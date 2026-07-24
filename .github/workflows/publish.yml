@@ -1,0 +1,46 @@
+name: Publish
+
+on:
+  release:
+    types:
+      - released
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    name: Release
+    runs-on: ubuntu-latest
+    steps:
+      - name: Fetch Sources
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.release.tag_name }}
+
+      - name: Setup Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: "21"
+          cache: maven
+
+      - name: Build Jira 11 JAR
+        run: |
+          mvn clean package -DskipTests -Pjira11
+          mkdir -p release-assets
+          cp target/testit-*-jira11.jar release-assets/
+
+      - name: Build Jira 8–9 JAR
+        run: |
+          mvn clean package -DskipTests "-Pjira912,!jira11"
+          cp target/testit-*.jar release-assets/
+          # Keep only plugin JARs (drop obr if present)
+          rm -f release-assets/*.obr
+          ls -la release-assets/
+
+      - name: Upload Release Assets
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          gh release upload "${{ github.event.release.tag_name }}" release-assets/*.jar --clobber
