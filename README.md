@@ -18,7 +18,7 @@ Use the JAR that matches your Jira major line. One file does **not** cover both 
 
 ## Install the Test IT plugin
 
-1. Obtain the installable `.jar` for your Jira version (for example from your Test IT contact or build output).  
+1. Download the installable `.jar` for your Jira version from the **Github releases**.  
 2. Sign in to Jira as an administrator and open **Applications**.
 3. Open app management and upload the `.jar`: **Manage apps** → **Upload app**.
 4. Select the file and click **Upload**. The plugin is installed into Jira.
