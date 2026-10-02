@@ -1,0 +1,153 @@
+.testit-testplans-panel {
+    margin-top: 4px;
+}
+
+.testit-testplans-panel .testit-testplans-toolbar {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+    margin-bottom: 8px;
+}
+
+.testit-testplans-panel .testit-testplans-add {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 6px;
+    flex: 1 1 auto;
+}
+
+.testit-testplans-panel .testit-testplans-add-label {
+    font-weight: normal;
+    margin: 0;
+    white-space: nowrap;
+}
+
+.testit-testplans-panel .testit-testplan-url-input {
+    min-width: 220px;
+    flex: 1 1 220px;
+    max-width: 420px;
+}
+
+.testit-testplans-panel .testit-testplans-refresh-btn {
+    white-space: nowrap;
+}
+
+.testit-testplans-panel .testit-table-scroll {
+    overflow-x: auto;
+    max-width: 100%;
+}
+
+.testit-testplans-panel table.testit-testplans-table {
+    table-layout: fixed;
+    width: 100%;
+    min-width: 56rem;
+}
+
+.testit-testplans-panel table.testit-testplans-table th,
+.testit-testplans-panel table.testit-testplans-table td {
+    overflow: hidden;
+    vertical-align: top;
+    white-space: normal;
+    overflow-wrap: break-word;
+}
+
+.testit-testplans-panel table.testit-testplans-table .testit-tp-col-actions {
+    width: 2.5em;
+}
+
+.testit-testplans-panel table.testit-testplans-table .testit-tp-col-id {
+    width: 4.5em;
+}
+
+.testit-testplans-panel table.testit-testplans-table .testit-tp-col-plan {
+    width: 20%;
+}
+
+.testit-testplans-panel table.testit-testplans-table .testit-tp-col-version,
+.testit-testplans-panel table.testit-testplans-table .testit-tp-col-product {
+    width: 10%;
+}
+
+.testit-testplans-panel table.testit-testplans-table .testit-tp-col-start,
+.testit-testplans-panel table.testit-testplans-table .testit-tp-col-end {
+    width: 12%;
+}
+
+.testit-testplans-panel table.testit-testplans-table .testit-tp-col-status {
+    width: 12%;
+}
+
+.testit-testplans-panel table.testit-testplans-table .testit-tp-col-tests {
+    width: 16%;
+}
+
+.testit-testplans-panel .testit-tp-plan-cell a {
+    overflow-wrap: break-word;
+}
+
+.testit-testplans-panel .testit-tp-id-cell {
+    font-variant-numeric: tabular-nums;
+}
+
+.testit-testplans-panel .testit-tp-actions-cell {
+    white-space: nowrap;
+    text-align: left;
+}
+
+.testit-testplans-panel .testit-testplan-unlink-btn {
+    padding: 2px 4px;
+    border: 0;
+    background: transparent;
+    cursor: pointer;
+    line-height: 1;
+    color: #6b778c;
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity 0.12s ease;
+}
+
+.testit-testplans-panel table.testit-testplans-table tbody tr:hover .testit-testplan-unlink-btn {
+    opacity: 1;
+    visibility: visible;
+}
+
+.testit-testplans-panel .testit-testplan-unlink-btn:hover {
+    color: #de350b;
+}
+
+.testit-testplans-panel .testit-tp-tests-line {
+    line-height: 1.35;
+}
+
+.testit-testplans-panel .testit-tp-count-passed {
+    color: #00875a;
+}
+
+.testit-testplans-panel .testit-tp-count-failed {
+    color: #de350b;
+}
+
+.testit-testplans-panel .testit-tp-count-skipped {
+    color: #ff991f;
+}
+
+.testit-testplans-panel .testit-tp-count-waiting {
+    color: #008da6;
+}
+
+.testit-testplans-panel .testit-tp-count-blocked {
+    color: #6b778c;
+}
+
+.testit-testplans-panel .testit-tp-count-inprogress {
+    color: #6554c0;
+}
+
+.testit-testplans-panel .testit-tp-status-inprogress {
+    background-color: #deebff;
+    color: #0052cc;
+    border-color: transparent;
+}

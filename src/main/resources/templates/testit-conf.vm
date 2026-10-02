@@ -1,0 +1,30 @@
+<html>
+  <head>
+    <title>Test IT Plugin Configuration</title>
+    <meta name="decorator" content="atl.admin">
+    $webResourceManager.requireResource("testit.testit:testit-resources")
+  </head>
+  <body>
+    <div class="aui-page-header-inner">
+        <h1>Test IT Plugin Configuration</h1>
+    </div>
+    <form id="testit-conf" class="aui">
+      <div class="field-group">
+        <label for="url">Test IT URL</label>
+        <input type="url" id="url" name="url" class="text">
+      </div>
+      <div class="field-group">
+        <label for="privateToken">Private Token</label>
+        <input type="password" id="privateToken" name="privateToken" class="text" autocomplete="off">
+      </div>
+      <div class="field-group">
+        <label for="projects">Projects</label>
+        <div id="projects">
+        </div>
+      </div>
+      <div class="field-group">
+        <input type="submit" value="Save" class="button">
+      </div>
+    </form>
+  </body>
+</html>

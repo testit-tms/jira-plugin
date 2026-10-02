@@ -1,0 +1,86 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<atlassian-plugin key="testit.testit" name="Test IT" plugins-version="2">
+
+    <resource name="testcase.png" type="download" location="images/testcase.png"/>
+
+    <web-resource key="testit-resources" name="Plugin Resources">
+        <resource name="testit-plugin-conf-ui.js" type="download" location="/js/testit-plugin-conf-ui.js"/>
+    </web-resource>
+
+    <web-resource key="testit-common-resources" name="Common Resources">
+        <dependency>com.atlassian.auiplugin:ajs</dependency>
+        <resource name="testit-common.js" type="download" location="/js/testit-common.js"/>
+        <context>jira.view.issue</context>
+    </web-resource>
+
+    <web-resource key="testit-create-testcase-resources" name="Create TestCase Resources">
+        <dependency>com.atlassian.auiplugin:ajs</dependency>
+        <dependency>testit.testit:testit-common-resources</dependency>
+        <resource name="testit-create-testcase.js" type="download" location="/js/testit-create-testcase.js"/>
+        <context>jira.view.issue</context>
+    </web-resource>
+
+    <web-resource key="testit-issue-panel-resources" name="Issue Panel Resources">
+        <dependency>com.atlassian.auiplugin:ajs</dependency>
+        <dependency>testit.testit:testit-common-resources</dependency>
+        <resource name="testit-issue-panel.css" type="download" location="/css/testit-issue-panel.css"/>
+        <resource name="testit-issue-panel.js" type="download" location="/js/testit-issue-panel.js"/>
+        <context>jira.view.issue</context>
+    </web-resource>
+
+    <web-resource key="testit-testplans-panel-resources" name="Test Plans Panel Resources">
+        <dependency>com.atlassian.auiplugin:ajs</dependency>
+        <dependency>testit.testit:testit-common-resources</dependency>
+        <resource name="testit-testplans-panel.css" type="download" location="/css/testit-testplans-panel.css"/>
+        <resource name="testit-testplans-panel.js" type="download" location="/js/testit-testplans-panel.js"/>
+        <context>jira.view.issue</context>
+    </web-resource>
+
+    <plugin-info>
+        <description>This is the test IT plugin for test management.</description>
+        <version>${plugin.descriptor.version}</version>
+        <vendor name="Test IT" url="https://testit.software"/>
+        <param name="plugin-icon">images/pluginIcon.png</param>
+        <param name="plugin-logo">images/pluginLogo.png</param>
+        <param name="configure.url">/plugins/servlet/testit/configuration</param>
+    </plugin-info>
+
+    <web-panel name="testItIssueViewConfig" key="testItIssueViewConfig" location="atl.footer">
+        <resource type="velocity" name="view" location="templates/testit-view-config.vm"/>
+    </web-panel>
+
+    <web-panel name="Test IT testcases &amp; testresults" key="Test-Case-TestIT" location="atl.jira.view.issue.left.context" weight="500">
+        <description>Linked Test IT test cases and test results for the issue</description>
+        <context-provider class="testIT.jira.TestItIssuePanelContext"/>
+        <resource name="view" type="velocity" location="templates/testit-issue-panel.vm"/>
+        <label>Test IT testcases &amp; testresults</label>
+        <condition class="testIT.jira.ProjectContext"/>
+    </web-panel>
+
+    <web-panel name="Test IT testplans" key="Test-Case-TestIT-TestPlans" location="atl.jira.view.issue.left.context" weight="600">
+        <description>Linked Test IT test plans for the issue</description>
+        <context-provider class="testIT.jira.TestItIssuePanelContext"/>
+        <resource name="view" type="velocity" location="templates/testit-testplans-panel.vm"/>
+        <label>Test IT testplans</label>
+        <condition class="testIT.jira.ProjectContext"/>
+    </web-panel>
+
+    <web-item key="Test-Case-TestIT-Create" i18n-name-key="Create TestCase" name="Create TestCase" section="operations-top-level" weight="0">
+        <label>Create TestCase</label>
+        <link linkId="testit_issue_link">$createDialogHref</link>
+        <context-provider class="testIT.jira.TestCaseLink"/>
+        <description>Provides button for create test case for issue</description>
+        <condition class="testIT.jira.ProjectContext"/>
+    </web-item>
+
+    <servlet name="Plugin Manager" i18n-name-key="Plugin Manager" key="TestIT-Plugin-Manager" class="testIT.jira.PluginManager">
+        <description>Provides UI for plugin config</description>
+        <url-pattern>/testit/configuration</url-pattern>
+    </servlet>
+
+    <rest key="rest" name="Plugin config REST API" path="/testit-conf" version="1.0">
+        <description>Provides REST resources for the plugin config UI</description>
+        <package>testIT.jira</package>
+    </rest>
+
+</atlassian-plugin>
