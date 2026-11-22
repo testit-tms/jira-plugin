@@ -10,12 +10,13 @@ The Test IT plugin integrates the server (Data Center) edition of Jira with Test
 
 **Compatibility**
 
-| Jira                    | Plugin artifact           |
-|-------------------------|---------------------------|
-| Data Center **8.x–9.x** | `testit-1.2.0.jar`        |
-| Data Center **11.x**    | `testit-1.2.0-jira11.jar` |
+| Jira                    | Plugin artifact              |
+|-------------------------|------------------------------|
+| Data Center **8.x–9.x** | `testit-1.3.0.jar`           |
+| Data Center **10.x**    | `testit-1.3.0-jira10.jar`    |
+| Data Center **11.x**    | `testit-1.3.0-jira11.jar`    |
 
-Use the JAR that matches your Jira major line. One file does **not** cover both 8–9 and 11. Jira Cloud is not supported.
+Use the JAR that matches your Jira major line. One file does **not** cover 8–9, 10, and 11 together. Jira Cloud is not supported.
 
 ## Install the Test IT plugin
 

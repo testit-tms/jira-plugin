@@ -267,6 +267,99 @@
             </dependencies>
         </profile>
 
+        <!-- One JAR for any Jira DC 10.x (javax packages, bytecode 17). Not for 8–9 or 11. -->
+        <profile>
+            <id>jira10</id>
+            <properties>
+                <!-- Compile against baseline 10.0 API so the same JAR works across 10.x -->
+                <jira.version>10.0.0</jira.version>
+                <amps.version>9.1.1</amps.version>
+                <atlassian.spring.scanner.version>2.2.4</atlassian.spring.scanner.version>
+                <scanner.schema.ns>http://www.atlassian.com/schema/atlassian-scanner/2</scanner.schema.ns>
+                <scanner.schema.xsd>http://www.atlassian.com/schema/atlassian-scanner/2/atlassian-scanner.xsd</scanner.schema.xsd>
+                <sal.api.version>5.2.0</sal.api.version>
+                <template.renderer.version>5.0.0</template.renderer.version>
+                <spring.version>5.3.39</spring.version>
+                <slf4j.version>1.7.36</slf4j.version>
+                <maven.compiler.release>17</maven.compiler.release>
+                <plugin.descriptor.version>1.2.0</plugin.descriptor.version>
+                <build.finalName>testit-1.3.0-jira10</build.finalName>
+                <plugin.source.dir>${project.build.directory}/jira10-sources</plugin.source.dir>
+                <!-- Platform 7 still exports javax.*; keep ranges wide for any 10.x -->
+                <osgi.import.package><![CDATA[
+                            org.springframework.osgi.*;resolution:="optional",
+                            org.eclipse.gemini.blueprint.*;resolution:="optional",
+                            javax.ws.rs*;version="[2.0.0,3.0.0)",
+                            javax.servlet*;version="[3.1,5)",
+                            javax.inject*;version="[1,2)",
+                            javax.annotation*;version="[1.2,2)",
+                            javax.xml.bind*;version="[2.2,3)",
+                            com.atlassian.jira.plugin.webfragment.conditions,
+                            *;version="0";resolution:="optional",
+                            *
+                        ]]></osgi.import.package>
+            </properties>
+            <dependencies>
+                <dependency>
+                    <groupId>javax.inject</groupId>
+                    <artifactId>javax.inject</artifactId>
+                    <version>1</version>
+                    <scope>provided</scope>
+                </dependency>
+                <dependency>
+                    <groupId>javax.servlet</groupId>
+                    <artifactId>javax.servlet-api</artifactId>
+                    <version>4.0.1</version>
+                    <scope>provided</scope>
+                </dependency>
+                <dependency>
+                    <groupId>javax.ws.rs</groupId>
+                    <artifactId>javax.ws.rs-api</artifactId>
+                    <version>2.1.1</version>
+                    <scope>provided</scope>
+                </dependency>
+                <dependency>
+                    <groupId>javax.xml.bind</groupId>
+                    <artifactId>jaxb-api</artifactId>
+                    <version>2.3.1</version>
+                    <scope>provided</scope>
+                </dependency>
+                <dependency>
+                    <groupId>javax.annotation</groupId>
+                    <artifactId>javax.annotation-api</artifactId>
+                    <version>1.3.2</version>
+                    <scope>provided</scope>
+                </dependency>
+            </dependencies>
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-antrun-plugin</artifactId>
+                        <version>3.1.0</version>
+                        <executions>
+                            <execution>
+                                <id>port-sources-to-javax-jira10</id>
+                                <phase>initialize</phase>
+                                <goals>
+                                    <goal>run</goal>
+                                </goals>
+                                <configuration>
+                                    <target>
+                                        <mkdir dir="${project.build.directory}/jira10-sources"/>
+                                        <copy todir="${project.build.directory}/jira10-sources" overwrite="true">
+                                            <fileset dir="${project.basedir}/src/main/java"/>
+                                        </copy>
+                                        <replace dir="${project.build.directory}/jira10-sources" token="jakarta." value="javax."/>
+                                    </target>
+                                </configuration>
+                            </execution>
+                        </executions>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+
         <!-- One JAR for Jira Server/DC 8.x–9.x (javax, bytecode 8). Not for Jira 10/11. -->
         <profile>
             <id>jira912</id>
