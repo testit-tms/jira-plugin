@@ -5,7 +5,7 @@ import com.atlassian.sal.api.pluginsettings.PluginSettings;
 import com.atlassian.sal.api.pluginsettings.PluginSettingsFactory;
 import com.google.gson.Gson;
 import jakarta.inject.Inject;
-import org.springframework.stereotype.Component;
+import jakarta.inject.Named;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
@@ -13,7 +13,7 @@ import java.util.Locale;
 import java.util.Set;
 import java.util.UUID;
 
-@Component
+@Named
 public class DuplicationConfigStore {
     static final String SETTINGS_KEY = DuplicationConfig.class.getName() + ".json";
     private static final Gson GSON = new Gson();

@@ -11,7 +11,7 @@ import com.atlassian.sal.api.transaction.TransactionTemplate;
 import com.atlassian.sal.api.user.UserManager;
 import com.google.gson.Gson;
 import jakarta.inject.Inject;
-import org.springframework.stereotype.Component;
+import jakarta.inject.Named;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.ws.rs.Consumes;
 import jakarta.ws.rs.GET;
@@ -44,7 +44,7 @@ import testIT.jira.testcase.TestCaseIssueType;
 import testIT.jira.tms.TmsRetrySettings;
 
 @Path("/")
-@Component
+@Named
 public class ConfigResource {
     private static final Logger log = LoggerFactory.getLogger(ConfigResource.class);
     private static final Gson GSON = new Gson();
