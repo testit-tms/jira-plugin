@@ -31,6 +31,11 @@ jobs:
           mkdir -p release-assets
           cp target/testit-*-jira11.jar release-assets/
 
+      - name: Build Jira 10 JAR
+        run: |
+          mvn clean package -DskipTests "-Pjira10,!jira11"
+          cp target/testit-*-jira10.jar release-assets/
+
       - name: Build Jira 8–9 JAR
         run: |
           mvn clean package -DskipTests "-Pjira912,!jira11"
