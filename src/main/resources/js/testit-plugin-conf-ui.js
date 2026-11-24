@@ -25,6 +25,11 @@
         if (!body) {
             body = textStatus || errorThrown || "Unknown error";
         }
+        var trimmed = String(body).replace(/^\s+/, "");
+        if (/^<!DOCTYPE/i.test(trimmed) || /^<html/i.test(trimmed)) {
+            body = "HTTP " + (httpStatus || 500) + " (server error)";
+            return body;
+        }
         if (body.length > 500) {
             body = body.substring(0, 500) + "...";
         }

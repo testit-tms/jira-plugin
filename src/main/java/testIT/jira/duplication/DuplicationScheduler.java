@@ -1,6 +1,7 @@
 package testIT.jira.duplication;
 
 import com.atlassian.jira.component.ComponentAccessor;
+import com.atlassian.sal.api.pluginsettings.PluginSettingsFactory;
 import com.atlassian.sal.api.scheduling.PluginScheduler;
 import jakarta.inject.Inject;
 import jakarta.inject.Named;
@@ -56,6 +57,23 @@ public class DuplicationScheduler {
             }
         });
         INSTANCE = this;
+    }
+
+    public static synchronized DuplicationScheduler getOrCreate(PluginSettingsFactory pluginSettingsFactory) {
+        if (INSTANCE != null) {
+            return INSTANCE;
+        }
+        if (pluginSettingsFactory == null) {
+            throw new IllegalArgumentException("pluginSettingsFactory is required");
+        }
+        DuplicationConfigStore configStore = new DuplicationConfigStore(pluginSettingsFactory);
+        DuplicationStatusStore statusStore = new DuplicationStatusStore(pluginSettingsFactory);
+        DuplicationSyncService syncService = new DuplicationSyncService(
+                configStore,
+                statusStore,
+                new JiraTestCaseIssueFactory(),
+                pluginSettingsFactory);
+        return new DuplicationScheduler(configStore, statusStore, syncService);
     }
 
     public static void ensureStarted() {
