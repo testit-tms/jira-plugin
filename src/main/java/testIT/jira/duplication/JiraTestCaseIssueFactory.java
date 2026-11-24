@@ -1,6 +1,6 @@
 package testIT.jira.duplication;
 
-import org.springframework.stereotype.Component;
+import jakarta.inject.Named;
 
 import com.atlassian.jira.bc.issue.IssueService;
 import com.atlassian.jira.component.ComponentAccessor;
@@ -14,7 +14,6 @@ import com.atlassian.jira.project.ProjectManager;
 import com.atlassian.jira.security.JiraAuthenticationContext;
 import com.atlassian.jira.user.ApplicationUser;
 import com.atlassian.jira.user.util.UserUtil;
-import com.atlassian.plugin.spring.scanner.annotation.imports.ComponentImport;
 import com.google.gson.Gson;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
@@ -23,12 +22,11 @@ import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.Collection;
-import jakarta.inject.Inject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import testIT.jira.testcase.TestCaseIssueType;
 
-@Component
+@Named
 public class JiraTestCaseIssueFactory {
     private static final Logger log = LoggerFactory.getLogger(JiraTestCaseIssueFactory.class);
     private static final Gson GSON = new Gson();
@@ -37,11 +35,7 @@ public class JiraTestCaseIssueFactory {
     static final String ENTITY_NAME = "IssueProperty";
     static final String HASH_JSON_FIELD = "hash";
 
-    private final JsonEntityPropertyManager propertyManager;
-
-    @Inject
-    public JiraTestCaseIssueFactory(@ComponentImport JsonEntityPropertyManager propertyManager) {
-        this.propertyManager = propertyManager;
+    public JiraTestCaseIssueFactory() {
     }
 
     public String createTestCaseIssue(String jiraProjectKey, String summary) {
@@ -166,9 +160,6 @@ public class JiraTestCaseIssueFactory {
     }
 
     private JsonEntityPropertyManager resolvePropertyManager() {
-        if (propertyManager != null) {
-            return propertyManager;
-        }
         try {
             return ComponentAccessor.getComponent(JsonEntityPropertyManager.class);
         } catch (RuntimeException e) {

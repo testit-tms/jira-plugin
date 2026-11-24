@@ -4,7 +4,7 @@ import com.atlassian.plugin.spring.scanner.annotation.imports.ComponentImport;
 import com.atlassian.sal.api.pluginsettings.PluginSettingsFactory;
 import com.google.gson.JsonObject;
 import jakarta.inject.Inject;
-import org.springframework.stereotype.Component;
+import jakarta.inject.Named;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import testIT.jira.ConfigResource;
@@ -13,7 +13,7 @@ import testIT.jira.tms.TmsJson;
 import testIT.jira.tms.TmsPage;
 import testIT.jira.testcase.TestCaseIssueType;
 
-@Component
+@Named
 public class DuplicationSyncService {
     private static final Logger log = LoggerFactory.getLogger(DuplicationSyncService.class);
     private static final int PAGE_SIZE = 100;

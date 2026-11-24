@@ -11,7 +11,7 @@ import com.atlassian.sal.api.transaction.TransactionTemplate;
 import com.atlassian.sal.api.user.UserManager;
 import com.google.gson.Gson;
 import jakarta.inject.Inject;
-import org.springframework.stereotype.Component;
+import jakarta.inject.Named;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.ws.rs.Consumes;
 import jakarta.ws.rs.GET;
@@ -44,35 +44,35 @@ import testIT.jira.testcase.TestCaseIssueType;
 import testIT.jira.tms.TmsRetrySettings;
 
 @Path("/")
-@Component
+@Named
 public class ConfigResource {
     private static final Logger log = LoggerFactory.getLogger(ConfigResource.class);
     private static final Gson GSON = new Gson();
 
-    @ComponentImport
     private final UserManager userManager;
-    @ComponentImport
     private final PluginSettingsFactory pluginSettingsFactory;
-    @ComponentImport
     private final TransactionTemplate transactionTemplate;
-    private final DuplicationConfigStore duplicationConfigStore;
-    private final DuplicationStatusStore duplicationStatusStore;
-    private final DuplicationScheduler duplicationScheduler;
 
     @Inject
     public ConfigResource(
-            UserManager userManager,
-            PluginSettingsFactory pluginSettingsFactory,
-            TransactionTemplate transactionTemplate,
-            DuplicationConfigStore duplicationConfigStore,
-            DuplicationStatusStore duplicationStatusStore,
-            DuplicationScheduler duplicationScheduler) {
+            @ComponentImport UserManager userManager,
+            @ComponentImport PluginSettingsFactory pluginSettingsFactory,
+            @ComponentImport TransactionTemplate transactionTemplate) {
         this.userManager = userManager;
         this.pluginSettingsFactory = pluginSettingsFactory;
         this.transactionTemplate = transactionTemplate;
-        this.duplicationConfigStore = duplicationConfigStore;
-        this.duplicationStatusStore = duplicationStatusStore;
-        this.duplicationScheduler = duplicationScheduler;
+    }
+
+    private DuplicationConfigStore configStore() {
+        return new DuplicationConfigStore(pluginSettingsFactory);
+    }
+
+    private DuplicationStatusStore statusStore() {
+        return new DuplicationStatusStore(pluginSettingsFactory);
+    }
+
+    private DuplicationScheduler scheduler() {
+        return DuplicationScheduler.getOrCreate(pluginSettingsFactory);
     }
 
     @GET
@@ -103,7 +103,7 @@ public class ConfigResource {
             return Response.status(Response.Status.UNAUTHORIZED).build();
         }
         try {
-            Map<String, DuplicationMappingStats> status = duplicationStatusStore.loadAll();
+            Map<String, DuplicationMappingStats> status = statusStore().loadAll();
             return Response.ok(GSON.toJson(Collections.singletonMap("byMappingId", status)))
                     .type(MediaType.APPLICATION_JSON)
                     .build();
@@ -170,11 +170,11 @@ public class ConfigResource {
         try {
             transactionTemplate.execute((TransactionCallback<Void>) () -> {
                 saveConfig(url, privateToken, projects, tmsRetryEnabled, tmsRetryAttempts, tmsRetryIntervalMs);
-                duplicationConfigStore.save(duplication);
+                configStore().save(duplication);
                 applyProjectChanges(mergeProjectKeys(projects, duplication));
                 return null;
             });
-            duplicationScheduler.afterConfigSaved(duplication);
+            scheduler().afterConfigSaved(duplication);
             return Response.noContent().build();
         } catch (Exception e) {
             log.error("Failed to save Test IT config", e);
@@ -192,7 +192,7 @@ public class ConfigResource {
         config.setTmsRetryEnabled(parseBooleanSetting(settings, ".tmsRetryEnabled"));
         config.setTmsRetryAttempts(normalizeRetryAttempts(parseIntSetting(settings, ".tmsRetryAttempts")));
         config.setTmsRetryIntervalMs(normalizeRetryIntervalMs(parseIntSetting(settings, ".tmsRetryIntervalMs")));
-        config.setDuplication(duplicationConfigStore.load());
+        config.setDuplication(configStore().load());
         return config;
     }
 

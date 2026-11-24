@@ -9,7 +9,7 @@ import com.atlassian.jira.issue.CustomFieldManager;
 import com.atlassian.jira.issue.Issue;
 import com.atlassian.jira.issue.fields.CustomField;
 import com.atlassian.plugin.spring.scanner.annotation.imports.ComponentImport;
-import com.atlassian.plugin.spring.scanner.annotation.imports.JiraImport;
+import com.atlassian.sal.api.lifecycle.LifecycleAware;
 import com.atlassian.sal.api.pluginsettings.PluginSettings;
 import com.atlassian.sal.api.pluginsettings.PluginSettingsFactory;
 import com.google.gson.Gson;
@@ -34,25 +34,42 @@ import testIT.jira.tms.TmsIssueContextService;
 import testIT.jira.tms.TmsWorkItemUnlinkService;
 
 @Component
-public class IssueCreatedResolvedListener implements DisposableBean {
+public class IssueCreatedResolvedListener implements LifecycleAware, DisposableBean {
     private static final Logger log = LoggerFactory.getLogger(IssueCreatedResolvedListener.class);
     private static final String TEST_RESULT_FIELD = "testResultId";
     private static final Gson GSON = new Gson();
 
-    @ComponentImport
     private final PluginSettingsFactory pluginSettingsFactory;
-    @JiraImport
-    private final EventPublisher eventPublisher;
 
     private final TmsIssueContextService issueContextService = new TmsIssueContextService();
     private final TmsWorkItemUnlinkService workItemUnlinkService = new TmsWorkItemUnlinkService();
+    private volatile EventPublisher eventPublisher;
+    private volatile boolean registered;
 
     @Inject
-    public IssueCreatedResolvedListener(EventPublisher eventPublisher,
-            PluginSettingsFactory pluginSettingsFactory) {
-        this.eventPublisher = eventPublisher;
+    public IssueCreatedResolvedListener(@ComponentImport PluginSettingsFactory pluginSettingsFactory) {
         this.pluginSettingsFactory = pluginSettingsFactory;
-        this.eventPublisher.register(this);
+    }
+
+    @Override
+    public void onStart() {
+        try {
+            EventPublisher publisher = ComponentAccessor.getComponent(EventPublisher.class);
+            if (publisher == null) {
+                log.warn("EventPublisher is null; IssueCreatedResolvedListener not registered");
+                return;
+            }
+            this.eventPublisher = publisher;
+            publisher.register(this);
+            registered = true;
+        } catch (Exception e) {
+            log.warn("Failed to register IssueCreatedResolvedListener; plugin stays enabled", e);
+        }
+    }
+
+    @Override
+    public void onStop() {
+        unregisterQuietly();
     }
 
     @EventListener
@@ -162,6 +179,20 @@ public class IssueCreatedResolvedListener implements DisposableBean {
 
     @Override
     public void destroy() {
-        eventPublisher.unregister(this);
+        unregisterQuietly();
+    }
+
+    private void unregisterQuietly() {
+        EventPublisher publisher = eventPublisher;
+        if (!registered || publisher == null) {
+            return;
+        }
+        try {
+            publisher.unregister(this);
+        } catch (Exception e) {
+            log.debug("EventPublisher unregister failed", e);
+        } finally {
+            registered = false;
+        }
     }
 }

@@ -10,10 +10,10 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import jakarta.inject.Inject;
-import org.springframework.stereotype.Component;
+import jakarta.inject.Named;
 import com.atlassian.plugin.spring.scanner.annotation.imports.ComponentImport;
 
-@Component
+@Named
 public class DuplicationStatusStore {
     private static final String SETTINGS_KEY = DuplicationConfig.class.getName() + ".status";
     private static final Gson GSON = new Gson();

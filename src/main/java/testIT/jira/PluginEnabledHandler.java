@@ -10,10 +10,11 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.DisposableBean;
 import org.springframework.stereotype.Component;
+import testIT.jira.duplication.DuplicationScheduler;
 import testIT.jira.testcase.TestCaseIssueType;
 
 /**
- * On enable: ensure TestCase issue type icon (fail-safe).
+ * On enable: start duplication scheduler if already created; ensure TestCase icon (fail-safe).
  * Link type / custom fields / projects still applied from ConfigResource on Save.
  */
 @Component
@@ -37,6 +38,11 @@ public class PluginEnabledHandler implements DisposableBean {
             return;
         }
         try {
+            DuplicationScheduler.ensureStarted();
+        } catch (Exception e) {
+            log.warn("Duplication scheduler ensureStarted failed on enable; plugin stays enabled", e);
+        }
+        try {
             TestCaseIssueType.ensureTestCaseIcon();
         } catch (Exception e) {
             log.warn("TestCase icon ensure failed on enable; plugin stays enabled", e);
@@ -45,6 +51,10 @@ public class PluginEnabledHandler implements DisposableBean {
 
     @Override
     public void destroy() {
-        eventPublisher.unregister(this);
+        try {
+            eventPublisher.unregister(this);
+        } catch (Exception e) {
+            log.debug("EventPublisher unregister failed", e);
+        }
     }
 }

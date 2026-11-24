@@ -1,11 +1,10 @@
 package testIT.jira.duplication;
 
-import com.atlassian.plugin.spring.scanner.annotation.imports.ComponentImport;
-import com.atlassian.sal.api.lifecycle.LifecycleAware;
+import com.atlassian.jira.component.ComponentAccessor;
+import com.atlassian.sal.api.pluginsettings.PluginSettingsFactory;
 import com.atlassian.sal.api.scheduling.PluginScheduler;
-import jakarta.annotation.PostConstruct;
 import jakarta.inject.Inject;
-import org.springframework.stereotype.Component;
+import jakarta.inject.Named;
 import java.time.Instant;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -23,15 +22,17 @@ import java.util.concurrent.atomic.AtomicInteger;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-@Component
-public class DuplicationScheduler implements LifecycleAware {
+@Named
+public class DuplicationScheduler {
     private static final Logger log = LoggerFactory.getLogger(DuplicationScheduler.class);
     static final String JOB_KEY = "testit-duplication-tick";
     static final String JOB_DATA_KEY = "duplicationScheduler";
     private static final long TICK_MS = 60_000L;
     private static final DateTimeFormatter HH_MM = DateTimeFormatter.ofPattern("HH:mm");
 
-    private final PluginScheduler pluginScheduler;
+    private static volatile DuplicationScheduler INSTANCE;
+
+    private volatile PluginScheduler pluginScheduler;
     private final DuplicationConfigStore configStore;
     private final DuplicationStatusStore statusStore;
     private final DuplicationSyncService syncService;
@@ -39,11 +40,9 @@ public class DuplicationScheduler implements LifecycleAware {
 
     @Inject
     public DuplicationScheduler(
-            @ComponentImport PluginScheduler pluginScheduler,
             DuplicationConfigStore configStore,
             DuplicationStatusStore statusStore,
             DuplicationSyncService syncService) {
-        this.pluginScheduler = pluginScheduler;
         this.configStore = configStore;
         this.statusStore = statusStore;
         this.syncService = syncService;
@@ -57,31 +56,37 @@ public class DuplicationScheduler implements LifecycleAware {
                 return t;
             }
         });
+        INSTANCE = this;
     }
 
-    @PostConstruct
-    public void init() {
+    public static synchronized DuplicationScheduler getOrCreate(PluginSettingsFactory pluginSettingsFactory) {
+        if (INSTANCE != null) {
+            return INSTANCE;
+        }
+        if (pluginSettingsFactory == null) {
+            throw new IllegalArgumentException("pluginSettingsFactory is required");
+        }
+        DuplicationConfigStore configStore = new DuplicationConfigStore(pluginSettingsFactory);
+        DuplicationStatusStore statusStore = new DuplicationStatusStore(pluginSettingsFactory);
+        DuplicationSyncService syncService = new DuplicationSyncService(
+                configStore,
+                statusStore,
+                new JiraTestCaseIssueFactory(),
+                pluginSettingsFactory);
+        return new DuplicationScheduler(configStore, statusStore, syncService);
+    }
+
+    public static void ensureStarted() {
+        DuplicationScheduler instance = INSTANCE;
+        if (instance == null) {
+            return;
+        }
         try {
-            statusStore.clearStaleRunning();
-            ensureTickJobRegistered();
+            instance.statusStore.clearStaleRunning();
+            instance.ensureTickJobRegistered();
         } catch (Exception e) {
-            log.warn("Duplication scheduler init failed", e);
+            log.warn("Duplication scheduler ensureStarted failed; plugin stays enabled", e);
         }
-    }
-
-    @Override
-    public void onStart() {
-        init();
-    }
-
-    @Override
-    public void onStop() {
-        try {
-            pluginScheduler.unscheduleJob(JOB_KEY);
-        } catch (Exception ignored) {
-            // job may not exist
-        }
-        executor.shutdownNow();
     }
 
     public void afterConfigSaved(DuplicationConfig config) {
@@ -194,15 +199,39 @@ public class DuplicationScheduler implements LifecycleAware {
         }
     }
 
+    private void resolvePluginScheduler() {
+        if (pluginScheduler != null) {
+            return;
+        }
+        try {
+            PluginScheduler scheduler = ComponentAccessor.getOSGiComponentInstanceOfType(PluginScheduler.class);
+            if (scheduler == null) {
+                scheduler = ComponentAccessor.getComponent(PluginScheduler.class);
+            }
+            if (scheduler == null) {
+                log.warn("PluginScheduler unavailable; duplication tick job not registered");
+                return;
+            }
+            pluginScheduler = scheduler;
+        } catch (Exception e) {
+            log.warn("Failed to resolve PluginScheduler; duplication tick job not registered", e);
+        }
+    }
+
     private void ensureTickJobRegistered() {
+        resolvePluginScheduler();
+        PluginScheduler scheduler = pluginScheduler;
+        if (scheduler == null) {
+            return;
+        }
         Map<String, Object> data = new HashMap<>();
         data.put(JOB_DATA_KEY, this);
         try {
-            pluginScheduler.unscheduleJob(JOB_KEY);
+            scheduler.unscheduleJob(JOB_KEY);
         } catch (Exception ignored) {
             // first registration
         }
-        pluginScheduler.scheduleJob(
+        scheduler.scheduleJob(
                 JOB_KEY,
                 DuplicationTickJob.class,
                 data,
